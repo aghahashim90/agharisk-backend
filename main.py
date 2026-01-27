@@ -40,3 +40,10 @@ def stock(symbol: str):
     price = get_stock(symbol)
     risk = risk_score(price)
     return {"symbol": symbol, "price": price, "risk": risk}
+import yfinance as yf
+
+@app.get("/price")
+def get_price(symbol: str):
+    data = yf.Ticker(symbol)
+    price = data.info.get("currentPrice", "N/A")
+    return {"symbol": symbol, "price": price}
