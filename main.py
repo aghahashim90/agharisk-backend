@@ -40,10 +40,21 @@ def stock(symbol: str):
     price = get_stock(symbol)
     risk = risk_score(price)
     return {"symbol": symbol, "price": price, "risk": risk}
-import yfinance as yf
+import requests
 
 @app.get("/price")
 def get_price(symbol: str):
-    data = yf.Ticker(symbol)
-    price = data.info.get("currentPrice", "N/A")
-    return {"symbol": symbol, "price": price}
+    symbol = symbol.lower()
+
+    if symbol == "btc-usd":
+        coin = "bitcoin"
+    elif symbol == "eth-usd":
+        coin = "ethereum"
+    else:
+        return {"symbol": symbol, "price": "Only BTC-USD or ETH-USD supported"}
+
+    url = f"https://api.coingecko.com/api/v3/simple/price?ids={coin}&vs_currencies=usd"
+    r = requests.get(url).json()
+    price = r[coin]["usd"]
+
+    return {"symbol": symbol.upper(), "price": price}
