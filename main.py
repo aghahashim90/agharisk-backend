@@ -2,12 +2,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import requests
 import os
-import openai
-
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+from openai import OpenAI
 
 app = FastAPI()
 
+# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -16,34 +15,29 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# OpenAI Client
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+# Home
 @app.get("/")
 def home():
     return {"msg": "AghaRisk AI Backend Live"}
 
+# BTC Price
 @app.get("/price")
 def get_price():
     url = "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd"
     r = requests.get(url).json()
     return {"symbol": "BTC-USD", "price": r["bitcoin"]["usd"]}
 
-@app.get("/ask")
-def ask_ai(q: str):
-    openai.api_key = OPENAI_API_KEY
-    response = openai.ChatCompletion.create(
-        model="gpt-4.1-mini",
-        messages=[{"role": "user", "content": q}]
-    )
-    return {"answer": response.choices[0].message.content}
+# Status
 @app.get("/status")
 def status():
     return {"server": "online", "version": "1.0"}
-import os
-from openai import OpenAI
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
+# ChatGPT API
 @app.post("/chat")
-def chat_ai(prompt: str):
+def chat(prompt: str):
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
@@ -52,3 +46,4 @@ def chat_ai(prompt: str):
         ]
     )
     return {"reply": response.choices[0].message.content}
+
