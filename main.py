@@ -37,3 +37,18 @@ def ask_ai(q: str):
 @app.get("/status")
 def status():
     return {"server": "online", "version": "1.0"}
+import os
+from openai import OpenAI
+
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+@app.post("/chat")
+def chat_ai(prompt: str):
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": "You are AghaRisk AI assistant."},
+            {"role": "user", "content": prompt}
+        ]
+    )
+    return {"reply": response.choices[0].message.content}
