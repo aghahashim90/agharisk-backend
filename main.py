@@ -34,3 +34,6 @@ def ask_ai(q: str):
         messages=[{"role": "user", "content": q}]
     )
     return {"answer": response.choices[0].message.content}
+@app.get("/status")
+def status():
+    return {"server": "online", "version": "1.0"}
